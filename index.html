@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Extract Amenities from JSON</title>
+</head>
+<body>
+  <h1>Extract Amenities from JSON File</h1>
+
+  <input type="file" id="fileInput" accept=".json" />
+  <button id="processBtn" disabled>Process File</button>
+  <a id="downloadLink" style="display:none" download="extracted_amenities.json">Download Results</a>
+
+  <script>
+    function extractAmenities(data) {
+      const excludedAccessValues = new Set(['no', 'permit', 'private']);
+      const excludedDrinkingWaterValues = new Set(['no', 'untreated']);
+      const extracted = [];
+
+      if (data.elements && Array.isArray(data.elements)) {
+        data.elements.forEach(element => {
+          if (element.tags && element.tags.amenity && element.lat && element.lon) {
+            const tags = element.tags;
+
+            if (
+              !excludedAccessValues.has(tags.access) &&
+              !excludedDrinkingWaterValues.has(tags.drinking_water) &&
+              tags.operational_status !== 'closed' &&
+              tags.water_point !== 'yes'
+            ) {
+              const hasDisused = Object.values(tags).some(value =>
+                typeof value === 'string' && value.toLowerCase().includes('disused')
+              );
+              if (!hasDisused) {
+                extracted.push({
+                  amenity: tags.amenity,
+                  lat: element.lat,
+                  lon: element.lon
+                });
+              }
+            }
+          }
+        });
+      }
+
+      return extracted;
+    }
+
+    const fileInput = document.getElementById('fileInput');
+    const processBtn = document.getElementById('processBtn');
+    const downloadLink = document.getElementById('downloadLink');
+
+    fileInput.addEventListener('change', () => {
+      processBtn.disabled = !fileInput.files.length;
+      downloadLink.style.display = 'none';
+    });
+
+    processBtn.addEventListener('click', () => {
+      if (!fileInput.files.length) return;
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(event) {
+        try {
+          const jsonData = JSON.parse(event.target.result);
+          const results = extractAmenities(jsonData);
+          const blob = new Blob([JSON.stringify(results, null, 2)], {type: 'application/json'});
+          const url = URL.createObjectURL(blob);
+
+          downloadLink.href = url;
+          downloadLink.style.display = 'inline-block';
+          downloadLink.textContent = `Download ${results.length} extracted entries`;
+        } catch (e) {
+          alert('Error parsing JSON file: ' + e.message);
+        }
+      };
+
+      reader.readAsText(file);
+    });
+  </script>
+</body>
+</html>
