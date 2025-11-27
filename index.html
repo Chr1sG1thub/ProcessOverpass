@@ -87,7 +87,7 @@ var result = await fetch(uri, {
   if (!data.ok) { // Check if the response was successful
     throw new Error(`HTTP error! status: ${data.status}`);
   }
-  let output = data.json();
+  let output = await data.json();
 }).then(text => {
   console.log("Success:", text);
     return text;
