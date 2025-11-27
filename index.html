@@ -62,7 +62,13 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////
     async function getData() {
       
-      let qy = '[out:json][timeout:25];(node["amenity"="cafe"](42.310099, 1.721397, 43.055034, 3.304637););out geom;';
+      let qy = '[out:json][timeout:25];('+
+        'node["amenity"="drinking_water"](42.310099, 1.721397, 43.055034, 3.304637);'+
+        'node["amenity"="fountain"](42.310099, 1.721397, 43.055034, 3.304637);'+
+        'node["amenity"="toilets"](42.310099, 1.721397, 43.055034, 3.304637);'+
+        'node["amenity"="water_point"](42.310099, 1.721397, 43.055034, 3.304637);'+
+        'node["man_made"="water_tap"](42.310099, 1.721397, 43.055034, 3.304637);'+
+        ');out geom;';
       // The Overpass API expects the query string as 'data=<url_encoded_query>' in the POST body.
       // The entire 'data=' string also needs to be URL-encoded for the body.
       
