@@ -98,7 +98,8 @@ var result = await fetch(uri, {
       
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    let jsonData = await getData();
+    async function main() {
+      let jsonData = await getData();
     
     const downloadLink = document.getElementById('downloadLink');
 
@@ -109,7 +110,9 @@ var result = await fetch(uri, {
           downloadLink.href = url;
           downloadLink.style.display = 'inline-block';
           downloadLink.textContent = `Download ${results.length} extracted entries`;
-
+                          }
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    main();
   </script>
 </body>
 </html>
