@@ -60,55 +60,52 @@
     } // function extractAmenities
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-    async function getData() {
-      
-      let qy = '[out:json][timeout:25];('+
-        'node["amenity"="drinking_water"](42.310099, 1.721397, 43.055034, 3.304637);'+
-        'node["amenity"="fountain"](42.310099, 1.721397, 43.055034, 3.304637);'+
-        'node["amenity"="toilets"](42.310099, 1.721397, 43.055034, 3.304637);'+
-        'node["amenity"="water_point"](42.310099, 1.721397, 43.055034, 3.304637);'+
-        'node["man_made"="water_tap"](42.310099, 1.721397, 43.055034, 3.304637);'+
-        ');out geom;';
-      // The Overpass API expects the query string as 'data=<url_encoded_query>' in the POST body.
-      // The entire 'data=' string also needs to be URL-encoded for the body.
-      
-      let postBody = 'data=' + encodeURIComponent(qy); // Correctly format the POST body
+async function getData() {
+  let qy = '[out:json][timeout:25];('+
+    'node["amenity"="drinking_water"](42.310099, 1.721397, 43.055034, 3.304637);'+
+    'node["amenity"="fountain"](42.310099, 1.721397, 43.055034, 3.304637);'+
+    'node["amenity"="toilets"](42.310099, 1.721397, 43.055034, 3.304637);'+
+    'node["amenity"="water_point"](42.310099, 1.721397, 43.055034, 3.304637);'+
+    'node["man_made"="water_tap"](42.310099, 1.721397, 43.055034, 3.304637);'+
+    ');out geom;';
 
-var uri = "https://overpass-api.de/api/interpreter";
+  let postBody = 'data=' + encodeURIComponent(qy);
+  let uri = "https://overpass-api.de/api/interpreter";
 
-var result = await fetch(uri, {
-  method:'POST',
-  // Explicitly set Content-Type for 'application/x-www-form-urlencoded'
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  },
-  body: postBody // Use the correctly formatted body
-}).then((response) => response.json())
-  .then((data) => {
-    console.log(data);
-}).catch(error => {
-  console.error("Error fetching data:", error);
-});
-      
-      } //async function getData
-      
-/////////////////////////////////////////////////////////////////////////////////////////////////////
+  try {
+    const response = await fetch(uri, {
+      method:'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: postBody
+    });
 
-    function main() {
-      let output = getData();
-    
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    const data = await response.json();
+    return data; // Return the JSON here
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error; // Re-throw to let main() handle it
+  }
+}/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+async function main() {
+  try {
+    const data = await getData(); // Wait for the fetch to complete and get the JSON
+    const results = extractAmenities(data); // Now extract amenities from the actual JSON
+
     const downloadLink = document.getElementById('downloadLink');
+    const blob = new Blob([JSON.stringify(results, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
 
-         const results = extractAmenities(output);
-          const blob = new Blob([JSON.stringify(results, null, 2)], {type: 'application/json'});
-          const url = URL.createObjectURL(blob);
-
-          downloadLink.href = url;
-          downloadLink.style.display = 'inline-block';
-          downloadLink.textContent = `Download ${results.length} extracted entries`;
-                          }
-    /////////////////////////////////////////////////////////////////////////////////////////////////
-    main();
+    downloadLink.href = url;
+    downloadLink.style.display = 'inline-block';
+    downloadLink.textContent = `Download ${results.length} extracted entries`;
+  } catch (error) {
+    console.error("Error in main execution:", error);
+  }
+}
+main();
   </script>
 </body>
 </html>
