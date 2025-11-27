@@ -7,11 +7,11 @@
 <body>
   <h1>Extract Amenities from JSON File with Type and Display</h1>
 
-  <input type="file" id="fileInput" accept=".json" />
-  <button id="processBtn" disabled>Process File</button>
   <a id="downloadLink" style="display:none" download="extracted_amenities.json">Download Results</a>
 
   <script>
+    
+/////////////////////////////////////////////////////////////////////////////////////////////////////
     function determineType(tags) {
       if (tags.amenity === 'drinking_water' && tags.man_made === 'water_tap') {
         return 'Robinet';
@@ -21,8 +21,9 @@
         return 'Fontaine';
       }
       return "Point d'Eau";
-    }
+    } //function determineType
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
     function extractAmenities(data) {
       const excludedAccessValues = new Set(['no', 'permit', 'private']);
       const excludedDrinkingWaterValues = new Set(['no', 'untreated']);
@@ -56,40 +57,53 @@
       }
 
       return extracted;
-    }
+    } // function extractAmenities
 
-    const fileInput = document.getElementById('fileInput');
-    const processBtn = document.getElementById('processBtn');
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+    async function getData() {
+      
+      let qy = '[out:json][timeout:25];(node["amenity"="cafe"](42.310099, 1.721397, 43.055034, 3.304637););out geom;';
+      // The Overpass API expects the query string as 'data=<url_encoded_query>' in the POST body.
+      // The entire 'data=' string also needs to be URL-encoded for the body.
+      
+      let postBody = 'data=' + encodeURIComponent(qy); // Correctly format the POST body
+
+var uri = "https://overpass-api.de/api/interpreter";
+
+var result = await fetch(uri, {
+  method:'POST',
+  // Explicitly set Content-Type for 'application/x-www-form-urlencoded'
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: postBody // Use the correctly formatted body
+}).then(data => {
+  if (!data.ok) { // Check if the response was successful
+    throw new Error(`HTTP error! status: ${data.status}`);
+  }
+  return data.json();
+}).then(text => {
+  console.log("Success:", text);
+}).catch(error => {
+  console.error("Error fetching data:", error);
+});
+      
+      } //async function getData
+      
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    let jsonData = getData();
+    
     const downloadLink = document.getElementById('downloadLink');
 
-    fileInput.addEventListener('change', () => {
-      processBtn.disabled = !fileInput.files.length;
-      downloadLink.style.display = 'none';
-    });
-
-    processBtn.addEventListener('click', () => {
-      if (!fileInput.files.length) return;
-
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-
-      reader.onload = function(event) {
-        try {
-          const jsonData = JSON.parse(event.target.result);
-          const results = extractAmenities(jsonData);
+         const results = extractAmenities(jsonData);
           const blob = new Blob([JSON.stringify(results, null, 2)], {type: 'application/json'});
           const url = URL.createObjectURL(blob);
 
           downloadLink.href = url;
           downloadLink.style.display = 'inline-block';
           downloadLink.textContent = `Download ${results.length} extracted entries`;
-        } catch (e) {
-          alert('Error parsing JSON file: ' + e.message);
-        }
-      };
 
-      reader.readAsText(file);
-    });
   </script>
 </body>
 </html>
