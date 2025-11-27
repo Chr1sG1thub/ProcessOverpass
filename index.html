@@ -87,10 +87,10 @@ var result = await fetch(uri, {
   if (!data.ok) { // Check if the response was successful
     throw new Error(`HTTP error! status: ${data.status}`);
   }
-  let output = await data.json();
-  return output;
+  let output = data.json();
 }).then(text => {
   console.log("Success:", text);
+    return text;
 }).catch(error => {
   console.error("Error fetching data:", error);
 });
@@ -100,11 +100,11 @@ var result = await fetch(uri, {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
     async function main() {
-      let jsonData = await getData();
+      let output = getData();
     
     const downloadLink = document.getElementById('downloadLink');
 
-         const results = extractAmenities(jsonData);
+         const results = extractAmenities(output);
           const blob = new Blob([JSON.stringify(results, null, 2)], {type: 'application/json'});
           const url = URL.createObjectURL(blob);
 
