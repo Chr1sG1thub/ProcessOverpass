@@ -63,12 +63,18 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 async function getData() {
   // needs to be async because it uses an await on a fetch
+
+  const southLat = 42.310099;
+  const westLon = 1.721397;
+  const northLat = 43.055034;
+  const eastLon = 3.304637;
+  
   let qy = '[out:json][timeout:25];('+
-    'node["amenity"="drinking_water"](42.310099, 1.721397, 43.055034, 3.304637);'+
-    'node["amenity"="fountain"](42.310099, 1.721397, 43.055034, 3.304637);'+
-    'node["amenity"="toilets"](42.310099, 1.721397, 43.055034, 3.304637);'+
-    'node["amenity"="water_point"](42.310099, 1.721397, 43.055034, 3.304637);'+
-    'node["man_made"="water_tap"](42.310099, 1.721397, 43.055034, 3.304637);'+
+    'node["amenity"="drinking_water"](southLat, westLon, northLat, eastLon);'+
+    'node["amenity"="fountain"](southLat, westLon, northLat, eastLon);'+
+    'node["amenity"="toilets"](southLat, westLon, northLat, eastLon);'+
+    'node["amenity"="water_point"](southLat, westLon, northLat, eastLon);'+
+    'node["man_made"="water_tap"](southLat, westLon, northLat, eastLon);'+
     ');out geom;';
 
   let postBody = 'data=' + encodeURIComponent(qy);
