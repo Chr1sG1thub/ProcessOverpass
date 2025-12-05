@@ -69,13 +69,13 @@ async function getData() {
   const northLat = 43.055034;
   const eastLon = 3.304637;
   
-  let qy = '[out:json][timeout:25];('+
-    'node["amenity"="drinking_water"](southLat, westLon, northLat, eastLon);'+
-    'node["amenity"="fountain"](southLat, westLon, northLat, eastLon);'+
-    'node["amenity"="toilets"](southLat, westLon, northLat, eastLon);'+
-    'node["amenity"="water_point"](southLat, westLon, northLat, eastLon);'+
-    'node["man_made"="water_tap"](southLat, westLon, northLat, eastLon);'+
-    ');out geom;';
+  let qy = `[out:json][timeout:25];(`+
+    `node["amenity"="drinking_water"](${southLat}, ${westLon}, ${northLat}, ${eastLon});`+
+    `node["amenity"="fountain"](${southLat}, ${westLon}, ${northLat}, ${eastLon});`+
+    `node["amenity"="toilets"](${southLat}, ${westLon}, ${northLat}, ${eastLon});`+
+    `node["amenity"="water_point"](${southLat}, ${westLon}, ${northLat}, ${eastLon});`+
+    `node["man_made"="water_tap"](${southLat}, ${westLon}, ${northLat}, ${eastLon});`+
+    `);out geom;`;
 
   let postBody = 'data=' + encodeURIComponent(qy);
   let uri = "https://overpass-api.de/api/interpreter";
